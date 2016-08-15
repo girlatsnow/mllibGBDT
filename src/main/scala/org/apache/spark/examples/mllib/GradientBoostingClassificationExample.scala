@@ -107,12 +107,23 @@ object GradientBoostingClassificationExample {
       val testData = MLUtils.loadLibSVMFile(sc, params.testData)
       println(s"numSamples: ${testData.count()}")
       val scoreAndLabels = testData.map { point =>
-        val prediction = model.predict(point.features)
-        (prediction, point.label)
+        val predictions =  model.trees.map(_.predict(point.features))
+        val claPred = new Array[Double](predictions.length)
+        Range(1,predictions.length).foreach{it=>
+          predictions(it)+=predictions(it-1)
+          if(predictions(it)>=0) claPred(it)=1.0
+          else claPred(it)=0.0
+        }
+
+        (claPred, point.label)
       }
-      val metrics = new BinaryClassificationMetrics(scoreAndLabels)
-      val accuracy = metrics.areaUnderROC()
-      println(s"test Accuracy = $accuracy")
+
+      Range(0,model.trees.length, 1).foreach{it=>
+        val scoreLabel = scoreAndLabels.map{case(claPred, lb)=>(claPred(it),lb)}
+        val metrics = new BinaryClassificationMetrics(scoreLabel)
+        val accuracy = metrics.areaUnderROC()
+        println(s"test Accuracy $it = $accuracy")
+      }
 
     }
   }

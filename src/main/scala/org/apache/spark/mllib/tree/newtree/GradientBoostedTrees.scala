@@ -277,14 +277,14 @@ object GradientBoostedTrees extends Logging {
         }
       }
 
-      if(m%50==0 || m ==numIterations-1) {
-        val scoreAndLabels = predError.map { case (pred, label) =>
+      if(m%1==0 || m ==numIterations-1) {
+        val scoreAndLabels = predError.zip(input).map { case ((pred, _), point) =>
           val prediction = if (pred > 0) 1.0 else -1.0
-          (prediction, label)
+          (prediction, point.label)
         }
         val metrics = new BinaryClassificationMetrics(scoreAndLabels)
         val accuracy = metrics.areaUnderROC()
-        println(s"training Accuracy = $accuracy")
+        println(s"training Accuracy $m = $accuracy")
       }
       m += 1
     }
