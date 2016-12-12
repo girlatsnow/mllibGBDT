@@ -277,7 +277,7 @@ object GradientBoostedTrees extends Logging {
         }
       }
 
-      if(m%1==0 || m ==numIterations-1) {
+      if(m%50==0 || m ==numIterations-1) {
         val scoreAndLabels = predError.zip(input).map { case ((pred, _), point) =>
           val prediction = if (pred > 0) 1.0 else -1.0
           (prediction, point.label)
